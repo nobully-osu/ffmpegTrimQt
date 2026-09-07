@@ -45,14 +45,14 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
-    background-color: #000080;
+    background-color: #1f4e78;
     color: #ffffff;
 
     border-radius: 0px;
 }
 
 QMenuBar::item:pressed {
-    background-color: #000080;
+    background-color: #1f4e78;
     color: #ffffff;
 
     border-radius: 0px;
@@ -86,7 +86,7 @@ QMenu::item {
 }
 
 QMenu::item:selected {
-    background-color: #000080;
+    background-color: #1f4e78;
     color: #ffffff;
 
     border-radius: 0px;
@@ -120,14 +120,14 @@ QLineEdit {
 }
 
 QLineEdit:focus {
-    border-top: 2px solid #000080;
-    border-left: 2px solid #000080;
+    border-top: 2px solid #1f4e78;
+    border-left: 2px solid #1f4e78;
     border-right: 2px solid #606060;
     border-bottom: 2px solid #606060;
 }
 
 QLineEdit::selection {
-    background-color: #000080;
+    background-color: #1f4e78;
     color: #ffffff;
 }
 
@@ -265,7 +265,6 @@ QPushButton#startButton[state="running"]:pressed {
 }
 
 
-
 /* ---------------------------------------------------------
    Progress bar
    --------------------------------------------------------- */
@@ -284,7 +283,7 @@ QProgressBar {
 }
 
 QProgressBar::chunk {
-    background-color: #000080;
+    background-color: #1f4e78;
 }
 
 
@@ -306,6 +305,55 @@ QPlainTextEdit {
 }
 
 QPlainTextEdit::selection {
-    background-color: #000080;
+    background-color: #1f4e78;
     color: #ffffff;
 }
+
+/* ---------------------------------------------------------
+   Tool Buttons
+   --------------------------------------------------------- */
+
+QToolButton {
+    background-color: #303030;
+    color: #e0e0e0;
+
+    border-top: 2px solid #505050;
+    border-left: 2px solid #505050;
+    border-right: 2px solid #101010;
+    border-bottom: 2px solid #101010;
+
+    padding: 2px 6px;
+    height: 18px;
+}
+
+QToolButton:hover {
+    background-color: #3c3c3c;
+
+    border-top: 2px solid #606060;
+    border-left: 2px solid #606060;
+    border-right: 2px solid #080808;
+    border-bottom: 2px solid #080808;
+}
+
+QToolButton:checked {
+    background-color: #242424;
+
+    border-top: 2px solid #101010;
+    border-left: 2px solid #101010;
+    border-right: 2px solid #505050;
+    border-bottom: 2px solid #505050;
+}
+
+QToolButton:checked:hover {
+    background-color: #242424;
+
+    border-top: 2px solid #101010;
+    border-left: 2px solid #101010;
+    border-right: 2px solid #505050;
+    border-bottom: 2px solid #505050;
+}
+
+QToolButton:focus {
+    outline: none;
+}
+

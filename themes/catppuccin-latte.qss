@@ -214,3 +214,49 @@ QPlainTextEdit {
     selection-background-color: #7287d3;
     selection-color: #ffffff;
 }
+
+/* ---------------------------------------------------------
+   Tool Buttons
+   --------------------------------------------------------- */
+
+QToolButton {
+    background-color: #e6e9ef;
+    color: #4c4f69;
+
+    border: 1px solid #9ca0b0;
+    border-radius: 4px;
+
+    padding: 2px 6px;
+    height: 18px;
+}
+
+QToolButton:hover {
+    background-color: #dce0e8;
+    border-color: #7c7f93;
+}
+
+QToolButton:checked {
+    background-color: #ccd0da;
+    border-color: #7287d3;
+}
+
+QToolButton:checked:hover {
+    background-color: #ccd0da;
+    border-color: #7287d3;
+}
+
+QToolButton:disabled {
+    background-color: #e6e9ef;
+    color: #9ca0b0;
+    border-color: #ccd0da;
+}
+
+QToolButton::menu-indicator {
+    image: none;
+    width: 0px;
+}
+
+QToolButton:focus {
+    outline: none;
+}
+

@@ -223,26 +223,6 @@ QPushButton#startButton:enabled:pressed {
     border-bottom: 2px solid #ffffff;
 }
 
-
-/* ---------------------------------------------------------
-   Start button - Disabled / Running
-   --------------------------------------------------------- */
-
-QPushButton#startButton:disabled {
-    background-color: #8a2828;
-    color: #ffffff;
-
-    font-weight: bold;
-
-    border-top: 2px solid #b85555;
-    border-left: 2px solid #b85555;
-    border-right: 2px solid #201010;
-    border-bottom: 2px solid #201010;
-
-    padding: 3px 12px;
-}
-
-
 /* ---------------------------------------------------------
    Progress bar
    --------------------------------------------------------- */
@@ -286,3 +266,52 @@ QPlainTextEdit::selection {
     background-color: #000080;
     color: #ffffff;
 }
+
+/* ---------------------------------------------------------
+   Tool Buttons
+   --------------------------------------------------------- */
+
+QToolButton {
+    background-color: #c0c0c0;
+    color: #000000;
+
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+
+    padding: 2px 6px;
+    height: 18px;
+}
+
+QToolButton:hover {
+    background-color: #d8d8d8;
+
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #202020;
+    border-bottom: 2px solid #202020;
+}
+
+QToolButton:checked {
+    background-color: #a8a8a8;
+
+    border-top: 2px solid #404040;
+    border-left: 2px solid #404040;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+QToolButton:checked:hover {
+    background-color: #a8a8a8;
+
+    border-top: 2px solid #404040;
+    border-left: 2px solid #404040;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+QToolButton:focus {
+    outline: none;
+}
+
