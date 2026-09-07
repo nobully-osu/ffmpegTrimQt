@@ -28,13 +28,24 @@ from PySide6.QtWidgets import (
 )
 
 
+# for executable
+if getattr(sys, "frozen", False):
+    APP_DIR = Path(sys.executable).resolve().parent
+else:
+    APP_DIR = Path(__file__).resolve().parent
+
+CONFIG_PATH = APP_DIR / "config.ini"
+THEME_DIR = APP_DIR / "themes"
+FFMPEG_PATH = APP_DIR / "ffmpeg" / "ffmpeg"
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         # import config
         self.config = ConfigParser()
-        self.config.read("config.ini")
+        self.config.read(CONFIG_PATH)
 
         # ffmpeg process definition
         self.ffmpeg_process = QProcess()
@@ -45,7 +56,7 @@ class MainWindow(QMainWindow):
         self.setFixedWidth(640)
 
         self.default_theme = self.config.get("qt", "default-theme")
-        self.load_theme(Path(__file__).parent / "themes" / f"{self.default_theme}.qss")
+        self.load_theme(THEME_DIR / f"{self.default_theme}.qss")
 
         # ui elements
         self.setup_ui()
@@ -193,7 +204,7 @@ class MainWindow(QMainWindow):
         theme_group = QActionGroup(self)
         theme_group.setExclusive(True)
 
-        theme_directory = Path(__file__).parent / "themes"
+        theme_directory = THEME_DIR
 
         for theme_path in theme_directory.glob("*.qss"):
             action = self.theme_menu.addAction(theme_path.stem)
@@ -304,7 +315,7 @@ class MainWindow(QMainWindow):
         ]
 
         self.ffmpeg_process.start(
-            "ffmpeg", args
+            str(FFMPEG_PATH), args
         )
 
     def parse_progress(self):
