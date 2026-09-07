@@ -1,4 +1,4 @@
-version = "v2.0.0-alpha"
+version = "v2.0.0"
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -16,13 +16,15 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import (
     QMainWindow,
     QApplication,
+    QSizePolicy,
     QFileDialog, QDialog,
     QLabel,
     QVBoxLayout, QHBoxLayout,
     QLineEdit, QPlainTextEdit,
     QWidget,
     QPushButton,
-    QProgressBar
+    QProgressBar,
+    QToolButton
 )
 
 
@@ -36,10 +38,11 @@ class MainWindow(QMainWindow):
 
         # ffmpeg process definition
         self.ffmpeg_process = QProcess()
+        self.stdout_buffer = ""
 
         # window settings
         self.setWindowTitle(f"ffmpegTrimQt {version}")
-        self.resize(800, 600)
+        self.setFixedWidth(640)
 
         self.default_theme = self.config.get("qt", "default-theme")
         self.load_theme(Path(__file__).parent / "themes" / f"{self.default_theme}.qss")
@@ -53,9 +56,7 @@ class MainWindow(QMainWindow):
 
     # helper functions
     def setup_ui(self):
-        main_layout = QVBoxLayout()
-
-        # file picker
+        # target path input
         target_layout = QHBoxLayout()
 
         target_label = QLabel("Target:")
@@ -66,7 +67,7 @@ class MainWindow(QMainWindow):
         target_layout.addWidget(self.path_line_edit)
         target_layout.addWidget(self.browse_button)
 
-        # timestamp entry
+        # timestamp input
         time_layout = QHBoxLayout()
 
         self.start_time_line_edit = QLineEdit()
@@ -81,56 +82,89 @@ class MainWindow(QMainWindow):
         time_layout.addWidget(to_label)
         time_layout.addWidget(self.end_time_line_edit)
 
-        # buttons
-        start_button_layout = QHBoxLayout()
+        # console detail dropdown
+        self.console_dropdown_layout = QVBoxLayout()
 
-        self.clear_button = QPushButton("Clear")
-        self.start_button = QPushButton("Start")
-        self.start_button.setObjectName("startButton")
-
-        start_button_layout.addWidget(self.clear_button)
-        start_button_layout.addWidget(self.start_button)
-
-        # progress bar + output console
-        output_layout = QVBoxLayout()
-
-        self.progress = QProgressBar()
-        self.progress.setTextVisible(False)
+        self.console_button = QToolButton()
+        self.console_button.setText("Console")
+        self.console_button.setCheckable(True)
+        self.console_button.setChecked(False)
+        self.console_button.setArrowType(Qt.ArrowType.RightArrow)
+        self.console_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 
         self.console = QPlainTextEdit()
         self.console.setReadOnly(True)
         self.console.setUndoRedoEnabled(False)
         self.console.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        self.console.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding
+        )
+        self.console.hide()
 
-        output_layout.addWidget(self.progress)
-        output_layout.addWidget(self.console)
+        self.console_dropdown_layout.addWidget(self.console_button)
+        self.console_dropdown_layout.addWidget(self.console)
 
-        # main window layout
+        # progress bar + clear & start button
+        progress_start_button_layout = QHBoxLayout()
+
+        self.progress = QProgressBar()
+        self.progress.setTextVisible(False)
+
+        self.clear_button = QPushButton("Clear")
+        self.clear_button.setFixedWidth(64)
+        self.start_button = QPushButton("Start")
+        self.start_button.setFixedWidth(64)
+        self.start_button.setObjectName("startButton")
+
+        progress_start_button_layout.addWidget(self.progress)
+        progress_start_button_layout.addWidget(self.clear_button)
+        progress_start_button_layout.addWidget(self.start_button)
+
+        # main layout
+        main_layout = QVBoxLayout()
+
         main_layout.addLayout(target_layout)
         main_layout.addLayout(time_layout)
-        main_layout.addLayout(start_button_layout)
-        main_layout.addLayout(output_layout)
+        main_layout.addLayout(self.console_dropdown_layout)
+        main_layout.addLayout(progress_start_button_layout)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
-
         self.setCentralWidget(central_widget)
+        self.adjustSize()
 
     def setup_connections(self):
         self.browse_button.clicked.connect(self.browse_file)
         self.clear_button.clicked.connect(self.clear_line_edits)
         self.start_button.clicked.connect(self.run_ffmpeg)
 
+        self.console_button.toggled.connect(self.console.setVisible)
+        self.console_button.toggled.connect(self.expand_console)
+
         self.ffmpeg_process.started.connect(self.ffmpeg_started)
         self.ffmpeg_process.finished.connect(self.ffmpeg_finished)
 
         self.ffmpeg_process.readyReadStandardOutput.connect(
-            self.read_process_output
+            self.parse_progress
         )
 
         self.ffmpeg_process.readyReadStandardError.connect(
             self.read_process_error
         )
+
+    # console resizing
+    def expand_console(self, expanded):
+        self.console_button.setArrowType(
+            Qt.ArrowType.DownArrow
+            if expanded
+            else Qt.ArrowType.RightArrow
+        )
+
+        self.console_dropdown_layout.activate()
+        self.console_dropdown_layout.invalidate()
+
+        self.adjustSize()
 
     # menu bar setup
     def setup_menubar(self):
@@ -225,17 +259,19 @@ class MainWindow(QMainWindow):
         input_path = Path(self.path_line_edit.text())
         if not input_path.is_file():
             self.console.appendPlainText("Invalid target video path.")
+            QApplication.beep()
             return
 
         output_path = get_output_path(str(input_path.with_suffix("")), file_extension)
 
-        start_time = self.start_time_line_edit.text()
-        end_time = self.end_time_line_edit.text()
+        self.start_time = self.start_time_line_edit.text()
+        self.end_time = self.end_time_line_edit.text()
 
         try:
-            self.duration = parse_timecode(end_time) - parse_timecode(start_time)
+            self.duration = parse_timecode(self.end_time) - parse_timecode(self.start_time)
         except ValueError as error:
             self.console.appendPlainText(f"Invalid timecode: {error}")
+            QApplication.beep()
             return
 
         video_args = (
@@ -258,7 +294,7 @@ class MainWindow(QMainWindow):
 
         args = [
             "-i", str(input_path),
-            "-ss", start_time,
+            "-ss", self.start_time,
             "-t", str(self.duration),
             *video_args,
             *audio_args,
@@ -271,9 +307,25 @@ class MainWindow(QMainWindow):
             "ffmpeg", args
         )
 
+    def parse_progress(self):
+        self.stdout_buffer += (
+            self.ffmpeg_process
+            .readAllStandardOutput()
+            .data()
+            .decode("utf-8", errors="replace")
+        )
+
+        while "\n" in self.stdout_buffer:
+            line, self.stdout_buffer = self.stdout_buffer.split("\n", 1)
+            if line.startswith("out_time="):
+                out_time = parse_timecode(line.replace("out_time=", ""))
+                current_progress = out_time - parse_timecode(self.start_time)
+                current_progress_percent = (current_progress / self.duration) * 100
+                self.progress.setValue(int(current_progress_percent))
+
     def ffmpeg_started(self):
         self.progress.setValue(0)
-        self.start_button.setText("Running...")
+        self.start_button.setText("Stop")
         self.start_button.setEnabled(False)
         self.console.appendPlainText("ffmpeg started...\n")
 
@@ -283,12 +335,6 @@ class MainWindow(QMainWindow):
         self.start_button.setText("Start")
         self.start_button.setEnabled(True)
         self.console.appendPlainText("ffmpeg finished.\n")
-
-    def read_process_output(self):
-        output = self.ffmpeg_process.readAllStandardOutput().data().decode(
-            "utf-8",
-            errors="replace"
-        )
 
     def read_process_error(self):
         output = self.ffmpeg_process.readAllStandardError().data().decode(
@@ -310,7 +356,7 @@ class AboutDialog(QDialog):
 
         layout = QVBoxLayout(self)
 
-        label = QLabel(f"★ Welcome to ffmpegTrimQt {version} ★\nBest viewed at 800x600\nPowered by FFmpeg\n",
+        label = QLabel(f"★ Welcome to ffmpegTrimQt {version} ★\nPowered by FFmpeg",
                        alignment=Qt.AlignmentFlag.AlignCenter)
 
         ok_button = QPushButton("Ok")
