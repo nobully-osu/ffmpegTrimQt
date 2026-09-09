@@ -1,4 +1,4 @@
-version = "v2.0.0"
+version = "v2.1.0"
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -10,7 +10,7 @@ from PySide6.QtCore import (
 )
 
 from PySide6.QtGui import (
-    QActionGroup, QTextCursor, QDesktopServices
+    QActionGroup, QTextCursor, QDesktopServices, QIcon
 )
 
 from PySide6.QtWidgets import (
@@ -24,7 +24,8 @@ from PySide6.QtWidgets import (
     QWidget,
     QPushButton,
     QProgressBar,
-    QToolButton
+    QToolButton,
+    QStyle
 )
 
 
@@ -54,6 +55,7 @@ class MainWindow(QMainWindow):
         # window settings
         self.setWindowTitle(f"ffmpegTrimQt {version}")
         self.setFixedWidth(640)
+        self.setMaximumHeight(480)
 
         self.default_theme = self.config.get("qt", "default-theme")
         self.load_theme(THEME_DIR / f"{self.default_theme}.qss")
@@ -73,6 +75,7 @@ class MainWindow(QMainWindow):
         target_label = QLabel("Target:")
         self.path_line_edit = QLineEdit()
         self.browse_button = QPushButton("Browse...")
+        self.browse_button.setIcon(QApplication.style().standardIcon(QStyle.StandardPixmap.SP_DirOpenIcon))
 
         target_layout.addWidget(target_label)
         target_layout.addWidget(self.path_line_edit)
@@ -97,7 +100,7 @@ class MainWindow(QMainWindow):
         self.console_dropdown_layout = QVBoxLayout()
 
         self.console_button = QToolButton()
-        self.console_button.setText("Console")
+        self.console_button.setText("_")
         self.console_button.setCheckable(True)
         self.console_button.setChecked(False)
         self.console_button.setArrowType(Qt.ArrowType.RightArrow)
@@ -107,17 +110,17 @@ class MainWindow(QMainWindow):
         self.console.setReadOnly(True)
         self.console.setUndoRedoEnabled(False)
         self.console.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        self.console.setFixedHeight(360)
         self.console.setSizePolicy(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding
         )
         self.console.hide()
 
-        self.console_dropdown_layout.addWidget(self.console_button)
         self.console_dropdown_layout.addWidget(self.console)
 
-        # progress bar + clear & start button
-        progress_start_button_layout = QHBoxLayout()
+        # progress bar + console, clear & start button
+        controls_layout = QHBoxLayout()
 
         self.progress = QProgressBar()
         self.progress.setTextVisible(False)
@@ -128,17 +131,18 @@ class MainWindow(QMainWindow):
         self.start_button.setFixedWidth(64)
         self.start_button.setObjectName("startButton")
 
-        progress_start_button_layout.addWidget(self.progress)
-        progress_start_button_layout.addWidget(self.clear_button)
-        progress_start_button_layout.addWidget(self.start_button)
+        controls_layout.addWidget(self.progress)
+        controls_layout.addWidget(self.console_button)
+        controls_layout.addWidget(self.clear_button)
+        controls_layout.addWidget(self.start_button)
 
         # main layout
         main_layout = QVBoxLayout()
 
         main_layout.addLayout(target_layout)
         main_layout.addLayout(time_layout)
+        main_layout.addLayout(controls_layout)
         main_layout.addLayout(self.console_dropdown_layout)
-        main_layout.addLayout(progress_start_button_layout)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
