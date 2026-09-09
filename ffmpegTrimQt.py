@@ -1,4 +1,4 @@
-version = "v2.1.0"
+version = "v2.2.0"
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -10,7 +10,7 @@ from PySide6.QtCore import (
 )
 
 from PySide6.QtGui import (
-    QActionGroup, QTextCursor, QDesktopServices, QIcon
+    QActionGroup, QTextCursor, QDesktopServices,
 )
 
 from PySide6.QtWidgets import (
@@ -57,8 +57,11 @@ class MainWindow(QMainWindow):
         self.setFixedWidth(640)
         self.setMaximumHeight(480)
 
-        self.default_theme = self.config.get("qt", "default-theme")
-        self.load_theme(THEME_DIR / f"{self.default_theme}.qss")
+        # load default theme if exists, otherwise do nothing
+        default_theme_setting = self.config.get("qt", "default-theme")
+        self.default_theme = Path(THEME_DIR / f"{default_theme_setting}.qss")
+        if self.default_theme.is_file():
+            self.load_theme(self.default_theme)
 
         # ui elements
         self.setup_ui()
