@@ -1,4 +1,4 @@
-version = "v2.1.1"
+version = "v2.1.2"
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -218,7 +218,7 @@ class MainWindow(QMainWindow):
             action.setCheckable(True)
             theme_group.addAction(action)
 
-            if theme_path.stem == self.default_theme:
+            if theme_path == self.default_theme:
                 action.setChecked(True)
 
             action.triggered.connect(
