@@ -112,11 +112,6 @@ class MainWindow(QMainWindow):
         self.console.setReadOnly(True)
         self.console.setUndoRedoEnabled(False)
         self.console.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
-        self.console.setFixedHeight(360)
-        self.console.setSizePolicy(
-            QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Expanding
-        )
         self.console.hide()
 
         self.console_dropdown_layout.addWidget(self.console)
