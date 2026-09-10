@@ -1,4 +1,4 @@
-version = "v2.1.0"
+version = "v2.1.1"
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -54,8 +54,7 @@ class MainWindow(QMainWindow):
 
         # window settings
         self.setWindowTitle(f"ffmpegTrimQt {version}")
-        self.setFixedWidth(640)
-        self.setMaximumHeight(480)
+        self.setFixedSize(640, 136)
 
         # load default theme if exists, otherwise do nothing
         default_theme_setting = self.config.get("qt", "default-theme")
@@ -181,6 +180,11 @@ class MainWindow(QMainWindow):
 
         self.console_dropdown_layout.activate()
         self.console_dropdown_layout.invalidate()
+
+        if expanded:
+            self.setFixedSize(640, 502)
+        else:
+            self.setFixedSize(640, 136)
 
         self.adjustSize()
 
