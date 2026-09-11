@@ -1,4 +1,4 @@
-version = "v2.2.0"
+version = "v2.2.1"
 import sys
 from configparser import ConfigParser
 from pathlib import Path
@@ -279,7 +279,7 @@ class MainWindow(QMainWindow):
             QApplication.beep()
             return
 
-        output_path = get_output_path(str(input_path.with_suffix("")), file_extension)
+        output_path = get_output_path(input_path.with_suffix(""), file_extension)
 
         self.start_time = self.start_time_line_edit.text()
         self.end_time = self.end_time_line_edit.text()
@@ -383,12 +383,16 @@ class AboutDialog(QDialog):
         layout.addWidget(label)
         layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-def get_output_path(temp_path: str, file_extension: str) -> str:
+def get_output_path(temp_path, file_extension):
     i = 0
-    while os.path.exists(
-            (output_path := f"{temp_path}_Trim{'' if i == 0 else i}.{file_extension}")
-    ): i += 1
-    return output_path
+
+    while True:
+        output_path = Path(f"{temp_path}_Trim{'' if i == 0 else i}.{file_extension}")
+
+        if not output_path.exists():
+            return str(output_path)
+
+        i += 1
 
 def parse_timecode(tc):
     if "." in tc:
