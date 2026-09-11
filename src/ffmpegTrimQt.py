@@ -1,9 +1,7 @@
-version = "v2.1.2"
+version = "v2.2.0"
 import sys
 from configparser import ConfigParser
 from pathlib import Path
-
-from ffmpegTrim import parse_timecode, get_output_path
 
 from PySide6.QtCore import (
     Qt, QProcess, QUrl
@@ -27,7 +25,6 @@ from PySide6.QtWidgets import (
     QStyle
 )
 
-
 # for executable
 if getattr(sys, "frozen", False):
     APP_DIR = Path(sys.executable).resolve().parent
@@ -42,6 +39,10 @@ FFMPEG_PATH = APP_DIR / "ffmpeg" / "ffmpeg"
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # generate config if missing
+        if not Path(CONFIG_PATH).exists():
+            generate_config()
 
         # import config
         self.config = ConfigParser()
@@ -381,6 +382,51 @@ class AboutDialog(QDialog):
 
         layout.addWidget(label)
         layout.addWidget(ok_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+def get_output_path(temp_path: str, file_extension: str) -> str:
+    i = 0
+    while os.path.exists(
+            (output_path := f"{temp_path}_Trim{'' if i == 0 else i}.{file_extension}")
+    ): i += 1
+    return output_path
+
+def parse_timecode(tc):
+    if "." in tc:
+        whole, ms = tc.split(".")
+        seconds = parse_timecode(whole)
+        return seconds + float("0." + str(ms))
+    else:
+        parts = list(map(int, tc.split(":")))
+        if len(parts) == 2:
+            return parts[0] * 60 + parts[1]
+        elif len(parts) == 3:
+            return parts[0] * 3600 + parts[1] * 60 + parts[2]
+        else:
+            raise ValueError("Invalid timecode format.")
+
+def generate_config():
+    config = ConfigParser()
+    config["audio"] = {
+        "codec": "copy",
+        "quality": "320k",
+    }
+
+    config["video"] = {
+        "codec": "libx264",
+        "quality": "23",
+        "preset": "medium",
+        "extension": "mp4",
+    }
+
+    config["qt"] = {
+        "default-path": str(Path.home() / "Videos"),
+        "default-theme": "win9x-dark",
+    }
+
+    with open("config.ini", "w") as f:
+        config.write(f)
+
+    return
 
 
 def main():

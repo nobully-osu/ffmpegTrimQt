@@ -23,9 +23,9 @@ def main() -> None:
 
     print(f"ffmpegTrim-rewrite {version}")
 
-    input_path = input("Path to video (or drag and drop): ").strip().strip('\"\'')
-    start_time = input("Start time of clip (hh:mm:ss, mm:ss): ")
-    end_time = input("End time of clip (hh:mm:ss, mm:ss): ")
+    input_path  = input("Path to video (or drag and drop): ").strip().strip('\"\'')
+    start_time  = input("Start time of clip (hh:mm:ss, mm:ss): ")
+    end_time    = input("End time of clip (hh:mm:ss, mm:ss): ")
 
     temp_path = Path(input_path)
 
