@@ -25,7 +25,7 @@ The included themes were shamelessly AI-generated. I don't have the time to crea
 You can also view the console to see detailed encoding progress by clicking the `>_` button.
 
 ### Future updates
-While this is a fully functional application, there are still some things I wish to add, such as a proper icon and the ability to stop an encode midway through.
+While this is a fully functional application, there are still some things I wish to add, such as a proper icon and the ability to stop an encode midway through, and possibly an updater.
 
 These are all small features, and any collaboration is welcome if there is something that should be added.
 
