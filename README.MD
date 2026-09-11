@@ -16,7 +16,7 @@ If the exported clip has a file extension of `*.mp4`, `*.mov`, or `*.m4a`, the f
 The timecode format can be whatever FFmpeg allows, including `HH:MM:SS.mmm`, `HH:MM:SS`, `MM:SS`, etc.
 
 ### Configuration
-The release includes a `config.ini` with some default settings. If `config.ini` is missing, it will be automatically generated with those default settings.
+The release generates a `config.ini` with some default settings on first launch. You may modify these settings as you see fit.
 
 You may also style the application however you wish via Qt's `.qss` stylesheets, located in the `themes` directory. Simply specify the theme you want the application to use by default in `config.ini`.
 
